@@ -1,8 +1,8 @@
 package com.example;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;;
 import org.mockito.Mockito;
@@ -15,7 +15,7 @@ public class InputReaderTest {
 
     static InputReader inputReader;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() {
         inputReader = new InputReader();
     }

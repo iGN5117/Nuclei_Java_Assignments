@@ -1,19 +1,16 @@
 package com.example;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 public class ItemTest {
     private Item itemRaw;
     private Item itemManufactured;
     private Item itemImported;
 
-    @Before
+    @BeforeEach
     public void init() {
         itemRaw = new Item("Raw_Item", 10.4, 2, ItemType.Raw);
         itemManufactured = new Item("Manufactured_Item", 100.5, 10, ItemType.Manufactured);
