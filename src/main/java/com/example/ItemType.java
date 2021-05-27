@@ -1,5 +1,4 @@
 package com.example;
-
-public enum ItemType {
+ enum ItemType {
     Raw, Manufactured, Imported
 }

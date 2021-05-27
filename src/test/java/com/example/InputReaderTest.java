@@ -1,14 +1,7 @@
 package com.example;
 
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;;
-import org.mockito.Mockito;
-
-import java.io.IOException;
-
 
 
 public class InputReaderTest {
@@ -48,18 +41,6 @@ public class InputReaderTest {
     }
 
     @Test
-    public void testSuccessValidatePresenceOfAllDetails() {
-        inputReader.setMockData("Test_Name", 10, 10, ItemType.Raw);
-        inputReader.validatePresenceOfAllDetails();
-    }
-
-    @Test
-    public void testFailureValidatePresenceOfAllDetails() {
-        inputReader.setMockDataEmpty();
-        Assertions.assertFalse(inputReader.validatePresenceOfAllDetails(), "Empty attribute validation failed");
-    }
-
-    @Test
     public void testCorrectAcceptType() {
         inputReader.acceptType("-type r");
         inputReader.acceptType("-type m");
@@ -72,19 +53,13 @@ public class InputReaderTest {
     }
 
     @Test
-    public void testPrintItems() {
-        inputReader.setMockItems();
-        inputReader.printItems();
-    }
-
-    @Test
     public void testValidAcceptNameInput() {
-        inputReader.acceptNameInput("-name New_Name");
+        inputReader.validateNameInput("-name New_Name");
     }
 
     @Test
     public void testInvalidAcceptNameInput() {
-        inputReader.acceptNameInput("random Line");
+        inputReader.validateNameInput("random Line");
     }
 
     @Test
@@ -117,10 +92,4 @@ public class InputReaderTest {
     public void testInvalidAcceptPrice() {
         inputReader.acceptPrice("-price random_String");
     }
-
-//    @Test
-//    public void testAcceptNewItemRequest() throws IOException {
-//        Mockito.when(inputReader.br.readLine()).thenReturn("y");
-//        inputReader.acceptNewItemRequest();
-//    }
 }

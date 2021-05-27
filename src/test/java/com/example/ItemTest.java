@@ -6,15 +6,15 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 
 public class ItemTest {
-    private Item itemRaw;
-    private Item itemManufactured;
-    private Item itemImported;
+    private ItemProcessing itemRaw;
+    private ItemProcessing itemManufactured;
+    private ItemProcessing itemImported;
 
     @BeforeEach
     public void init() {
-        itemRaw = new Item("Raw_Item", 10.4, 2, ItemType.Raw);
-        itemManufactured = new Item("Manufactured_Item", 100.5, 10, ItemType.Manufactured);
-        itemImported = new Item("Imported_Item", 200, 20, ItemType.Imported);
+        itemRaw = new ItemProcessing(new Item("Raw_Item", 10.4, 2, ItemType.Raw));
+        itemManufactured = new ItemProcessing(new Item("Manufactured_Item", 100.5, 10, ItemType.Manufactured));
+        itemImported = new ItemProcessing(new Item("Imported_Item", 200, 20, ItemType.Imported));
     }
 
     @Test

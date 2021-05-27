@@ -6,51 +6,22 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Optional;
 
-public class InputReader {
+class InputReader {
     BufferedReader br;
-    ArrayList<Item> itemList = new ArrayList<>();
+    ArrayList<ItemProcessing> itemList = new ArrayList<>();
     Optional<String> enteredName;
-    Optional<Double> enteredPrice = Optional.empty();
-    Optional<Integer> enteredQuantity = Optional.empty();
-    Optional<ItemType> enteredItemType = Optional.empty();
+    Optional<Double> enteredPrice;
+    Optional<Integer> enteredQuantity;
+    Optional<ItemType> enteredItemType;
 
-    public InputReader() {
+    InputReader() {
         br = new BufferedReader(new InputStreamReader(System.in));
     }
 
-    public void startReadingInput() {
-        try {
-            this.readInput();
-        }catch (IOException e) {
-            System.out.println("Error in accepting input, please try again later");
-            System.exit(0);
-        }
-    }
-
-    public void setMockData(String enteredName, double enteredPrice,
-                            int enteredQuantity, ItemType enteredItemType) {
-        this.enteredName = Optional.of(enteredName);
-        this.enteredPrice = Optional.of(enteredPrice);
-        this.enteredQuantity = Optional.of(enteredQuantity);
-        this.enteredItemType = Optional.of(enteredItemType);
-    }
-
-    public void setMockDataEmpty() {
-        this.enteredName = Optional.empty();
-        this.enteredPrice = Optional.empty();
-        this.enteredQuantity = Optional.empty();
-        this.enteredItemType = Optional.empty();
-    }
-
-    public void setMockItems() {
-        Item itemRaw = new Item("Raw_Item", 10.4, 2, ItemType.Raw);
-        Item itemManufactured = new Item("Manufactured_Item", 100.5, 10, ItemType.Manufactured);
-        Item itemImported = new Item("Imported_Item", 200, 20, ItemType.Imported);
-        itemList.add(itemRaw);
-        itemList.add(itemManufactured);
-        itemList.add(itemImported);
-    }
-
+    /**
+     * Entry method to accept all user input
+     * @throws IOException
+     */
     void readInput() throws IOException  {
         printWelcomeMessage();
         String welcomeInput = br.readLine().trim();
@@ -58,13 +29,13 @@ public class InputReader {
             printItemEnteringDescription();
             while (true) {
                 String nameLine = br.readLine().trim();
-                if (acceptNameInput(nameLine)) {
+                if (validateNameInput(nameLine)) {
                     enteredName = Optional.of(nameLine.split("-name ")[1]);
                     enteredName.ifPresent(s -> System.out.println("Entered name: " + s));
-                    Item enteredItem = this.makeItem();
-                    this.itemList.add(enteredItem);
-                    System.out.println("Do you want to add another item? (y/n)");
-                    boolean newItemRequest = this.acceptNewItemRequest();
+                    ItemProcessing enteredItem = new ItemProcessing(makeItem());
+                    itemList.add(enteredItem);
+                    System.out.println(Constants.ADD_ANOTHER_ITEM);
+                    boolean newItemRequest = acceptNewItemRequest();
                     if (!newItemRequest) {
                         break;
                     }
@@ -80,12 +51,16 @@ public class InputReader {
         }
     }
 
+    /**
+     * Helper method to print welcome message
+     */
     void printWelcomeMessage() {
-        System.out.println("Welcome to item inventory");
-        System.out.println("Would you like to add items? (y/n)");
+        System.out.println(Constants.WELCOME_MESSAGE);
     }
 
-
+    /**
+     * Helper method to print steps to enter item details
+     */
     void printItemEnteringDescription() {
         System.out.println("-------------------------------------------------------------");
         System.out.println("                        Item Inventory                       ");
@@ -100,7 +75,12 @@ public class InputReader {
         System.out.println("Go ahead and start entering items!");
     }
 
-    boolean acceptNameInput(String nameLine) {
+    /**
+     * Method to validate name entry
+     * @param nameLine input entered by user for item name
+     * @return TRUE if valid name is entered, FALSE otherwise
+     */
+    boolean validateNameInput(final String nameLine) {
         if (nameLine.matches("-name .*")) {
             return true;
         }else {
@@ -109,25 +89,30 @@ public class InputReader {
         }
     }
 
-    public Item makeItem() throws IOException {
+    /**
+     * Method to return Item with details entered by users
+     * @return Item
+     * @throws IOException
+     */
+    Item makeItem() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         Item enteredItem;
         while (true) {
             String attributeLine = br.readLine();
             if (attributeLine.matches("-price .*")) {
-                this.acceptPrice(attributeLine);
+                acceptPrice(attributeLine);
             }else if (attributeLine.matches("-quantity .*")) {
-                this.acceptQuantity(attributeLine);
+                acceptQuantity(attributeLine);
             }else if (attributeLine.matches("-type .")) {
-                this.acceptType(attributeLine);
-            }else if (attributeLine.equalsIgnoreCase("done")) {
-                if (this.validatePresenceOfAllDetails()) {
+                acceptType(attributeLine);
+            }else if (attributeLine.matches("done")) {
+                if (validatePresenceOfAllDetails()) {
                     enteredItem = new Item(enteredName.get(), enteredPrice.get(), enteredQuantity.get(), enteredItemType.get());
                     System.out.println("Item Added!");
                     break;
                 }
             }else if (attributeLine.matches("-name .*")) {
-                this.acceptNewNameRequest(attributeLine);
+                acceptNewNameRequest(attributeLine);
             }else {
                 System.out.println("Invalid input. Please add according to previously mentioned format.");
             }
@@ -135,7 +120,12 @@ public class InputReader {
         return enteredItem;
     }
 
-    public boolean acceptNewItemRequest() throws IOException {
+    /**
+     * Method to enter user response for adding another item
+     * @return TRUE if user intends to enter another item, FALSE otherwise
+     * @throws IOException
+     */
+    boolean acceptNewItemRequest() throws IOException {
         String newItemRequest;
         while (true) {
             newItemRequest = br.readLine().trim();
@@ -148,26 +138,37 @@ public class InputReader {
         return newItemRequest.equalsIgnoreCase("y");
     }
 
-    public void printItems() {
+    /**
+     * Method to print final item details of all items created by the user
+     */
+    void printItems() {
         if (!itemList.isEmpty()) {
-            for (Item item: itemList
+            for (ItemProcessing item: itemList
             ) {
                 item.printItemDetails();
             }
         }
     }
 
-    public void acceptPrice(String attributeLine) {
+    /**
+     * Method to enter and validate price entered by user
+     * @param attributeLine input entered by user for item price
+     */
+    void acceptPrice(final String attributeLine) {
         String priceString = attributeLine.split("-price ")[1];
         try {
             double potentialPrice = Double.parseDouble(priceString);
-            this.validatePrice(potentialPrice);
+            validatePrice(potentialPrice);
         }catch (NumberFormatException e) {
             System.out.println("Invalid price entered. Please enter price in decimal format");
         }
     }
 
-    public void validatePrice(double potentialPrice) {
+    /**
+     * 
+     * @param potentialPrice input price which is yet to be validated
+     */
+    void validatePrice(final double potentialPrice) {
         if (potentialPrice <= 0) {
             System.out.println("Price cannot be negative or zero");
         }else {
@@ -176,17 +177,25 @@ public class InputReader {
         }
     }
 
-    public void acceptQuantity(String attributeLine) {
+    /**
+     * Method to accept and validate quantity entered by user
+     * @param attributeLine input quantity entered by user for item quantity
+     */
+    void acceptQuantity(final String attributeLine) {
         String quantityString = attributeLine.split("-quantity ")[1];
         try {
             int potentialQuantity = Integer.parseInt(quantityString);
-            this.validateQuantity(potentialQuantity);
+            validateQuantity(potentialQuantity);
         }catch (NumberFormatException e) {
             System.out.println("Invalid quantity entered. Please add quantity in integer format");
         }
     }
 
-    public void validateQuantity(int potentialQuantity) {
+    /**
+     * Helper method to validate a given quantity
+     * @param potentialQuantity input quantity which is yet to be validated
+     */
+    void validateQuantity(final int potentialQuantity) {
         if (potentialQuantity <= 0) {
             System.out.println("Quantity cannot be negative or zero");
         }else {
@@ -195,24 +204,36 @@ public class InputReader {
         }
     }
 
-    public void acceptType(String attributeLine) {
+    /**
+     * Method to accept and validate ItemType entered by the user
+     * @param attributeLine input entered by user for item type
+     */
+    void acceptType(final String attributeLine) {
         String potentialItemType = attributeLine.split("-type ")[1];
-        if (potentialItemType.equalsIgnoreCase("i")) {
-            enteredItemType = Optional.of(ItemType.Imported);
-            enteredItemType.ifPresent(s -> System.out.println("Entered type: " + enteredItemType.get()));
-        }else if (potentialItemType.equalsIgnoreCase("m")) {
-            enteredItemType = Optional.of(ItemType.Manufactured);
-            enteredItemType.ifPresent(s -> System.out.println("Entered type: " + enteredItemType.get()));
-        }else if (potentialItemType.equalsIgnoreCase("r")) {
-            enteredItemType = Optional.of(ItemType.Raw);
-            enteredItemType.ifPresent(s -> System.out.println("Entered type: " + enteredItemType.get()));
-        }else {
-            System.out.println("Invalid item type entered. Please add a valid item type from r/m/i");
+        switch (potentialItemType.toLowerCase()) {
+            case "r":
+                enteredItemType = Optional.of(ItemType.Raw);
+                enteredItemType.ifPresent(s -> System.out.println("Entered type: " + enteredItemType.get()));
+                break;
+            case "m":
+                enteredItemType = Optional.of(ItemType.Manufactured);
+                enteredItemType.ifPresent(s -> System.out.println("Entered type: " + enteredItemType.get()));
+                break;
+            case "i":
+                enteredItemType = Optional.of(ItemType.Imported);
+                enteredItemType.ifPresent(s -> System.out.println("Entered type: " + enteredItemType.get()));
+                break;
+            default:
+                System.out.println("Invalid item type entered. Please add a valid item type from r/m/i");
         }
     }
 
-    public boolean validatePresenceOfAllDetails() {
-        if (!enteredName.isEmpty() && !enteredPrice.isEmpty() && !enteredQuantity.isEmpty() && !enteredItemType.isEmpty()) {
+    /**
+     * Method to check presence of all details required for an item
+     * @return TRUE if all details are present, FALSE otherwise
+     */
+    boolean validatePresenceOfAllDetails() {
+        if (!enteredName.isPresent() && !enteredPrice.isPresent() && !enteredQuantity.isPresent() && !enteredItemType.isPresent()) {
             return true;
         }else {
             System.out.println("Insufficient item details entered");
@@ -220,7 +241,11 @@ public class InputReader {
         }
     }
 
-    public void acceptNewNameRequest(String attributeLine) {
+    /**
+     * Method to accept change request for name
+     * @param attributeLine input entered by user for change in name
+     */
+    void acceptNewNameRequest(final String attributeLine) {
         enteredName = Optional.of(attributeLine.split("-name ")[1]); //co
         enteredName.ifPresent(s -> System.out.println("Entered name: " + s));
     }
